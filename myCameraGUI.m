@@ -22,7 +22,7 @@ function varargout = myCameraGUI(varargin)
 
 % Edit the above text to modify the response to help mycameragui
 
-% Last Modified by GUIDE v2.5 01-Dec-2013 21:08:15
+% Last Modified by GUIDE v2.5 01-Dec-2013 21:42:07
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -111,28 +111,6 @@ handles.output = hObject;
 varargout{1} = handles.output;
 
 
-% --- Executes on button press in startStopCamera.
-function startStopCamera_Callback(hObject, eventdata, handles)
-% hObject handle to startStopCamera (see GCBO)
-% eventdata reserved - to be defined in a future version of MATLAB
-% handles structure with handles and user data (see GUIDATA)
-
-% Start/Stop Camera
-if strcmp(get(handles.startStopCamera,'String'),'Start Camera')
-    % Camera is off. Change button string and start camera.
-    set(handles.startStopCamera,'String','Stop Camera')
-    start(handles.video)
-    set(handles.startAcquisition,'Enable','on');
-    set(handles.captureImage,'Enable','on');
-    
-else
-    % Camera is on. Stop camera and change button string.
-    set(handles.startStopCamera,'String','Start Camera')
-    stop(handles.video)
-    set(handles.startAcquisition,'Enable','off');
-    set(handles.captureImage,'Enable','off');
-end
-
 % --- Executes on button press in captureImage.
 function captureImage_Callback(hObject, eventdata, handles)
 % hObject    handle to captureImage (see GCBO)
@@ -191,6 +169,11 @@ function newUser_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 name = inputdlg('Enter your name');
+if isempty(name)
+    return
+end
+global userObj;
+userObj = EigenFace(name);
 strng = sprintf('Say cheese %s!',name{1});
 msgbox(strng);
 set(handles.captureFace,'Visible','on');
@@ -201,6 +184,21 @@ function captureFace_Callback(hObject, eventdata, handles)
 % hObject    handle to captureFace (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+frame = get(get(handles.cameraAxes,'children'),'cdata'); % The current displayed frame
+stopCamera(handles);
+im = imresize(frame,[480 640]);
+
+global faces;
+global userObj;
+userObj = userObj.addPhoto(im);
+numUsers = length(faces);
+faces{numUsers+1} = userObj;
+save('faces.mat','faces');
+set(handles.statusText,'String','Successfully added to the database');
+set(handles.captureFace,'Visible','off');
 
 function startCamera(handles)
 start(handles.video)
+
+function stopCamera(handles)
+stop(handles.video)

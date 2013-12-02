@@ -1,16 +1,23 @@
 classdef EigenFace
     properties
         Eigenvector
-        Picture
+        Photos
         Name
     end
     
     methods
-        % Dummy constructor for testing objects
-        function EF = EigenFace(eigenvector, image, name)
-           EF.Eigenvector = eigenvector;
-           EF.Picture = image;
+        function EF = EigenFace(name)
+           EF.Photos = cell(0);
            EF.Name = name;
+        end
+        
+        function EF = addPhoto(EF,im)
+            len = length(EF.Photos);
+            EF.Photos{len+1} = im;
+        end
+        
+        function EF = setEigenvector(EF,ev)
+            EF.Eigenvector = ev;
         end
     end
 end
