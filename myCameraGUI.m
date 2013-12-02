@@ -22,7 +22,7 @@ function varargout = myCameraGUI(varargin)
 
 % Edit the above text to modify the response to help mycameragui
 
-% Last Modified by GUIDE v2.5 01-Nov-2011 11:18:31
+% Last Modified by GUIDE v2.5 01-Dec-2013 21:08:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -70,18 +70,21 @@ end
 OS = computer();
 switch OS
     case 'PCWIN64' % windows
-        %vid = videoinput('winvideo', 1, 'YUY2_320x240');
-        handles.video = videoinput('winvideo', 1);
+        try
+            handles.video = videoinput('winvideo', 1, 'YUY2_640x480');
+        catch
+            handles.video = videoinput('winvideo', 1);
+        end
     case 'MACI64'  % mac    
         handles.video = videoinput('macvideo',1); % add resolution! (need to call "imaqtool" on mac)
     otherwise      % sorry linux   
         disp('error - operating system')
 end
 set(handles.video,'TimerPeriod', 0.05, ...
-'ReturnedColorspace', 'rgb', ...
+'ReturnedColorspace', 'grayscale', ...
 'TimerFcn',['if(~isempty(gco)),'...
 'handles=guidata(gcf);'... % Update handles
-'imshow(fliprgblr(getsnapshot(handles.video)));'... % Get picture using GETSNAPSHOT and put it into axes using IMAGE
+'imshow(fliplr(getsnapshot(handles.video)));'... % Get picture using GETSNAPSHOT and put it into axes using IMAGE
 'set(handles.cameraAxes,''ytick'',[],''xtick'',[]),'... % Remove tickmarks and labels that are inserted when using IMAGE
 'else '...
 'delete(imaqfind);'... % Clean up - delete any image acquisition objects
@@ -180,3 +183,24 @@ function myCameraGUI_CloseRequestFcn(hObject, eventdata, handles)
 % Hint: delete(hObject) closes the figure
 delete(hObject);
 delete(imaqfind);
+
+
+% --- Executes on button press in newUser.
+function newUser_Callback(hObject, eventdata, handles)
+% hObject    handle to newUser (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+name = inputdlg('Enter your name');
+strng = sprintf('Say cheese %s!',name{1});
+msgbox(strng);
+set(handles.captureFace,'Visible','on');
+startCamera(handles);
+
+% --- Executes on button press in captureFace.
+function captureFace_Callback(hObject, eventdata, handles)
+% hObject    handle to captureFace (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+function startCamera(handles)
+start(handles.video)
