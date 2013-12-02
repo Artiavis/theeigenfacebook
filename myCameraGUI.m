@@ -55,12 +55,28 @@ function myCameraGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for mycameragui
 handles.output = hObject;
 
+%global faces;
+%if exist('faces.mat','file')
+%    load('faces.mat')
+%else
+%    faces = cell(0);
+%end
+
 % Create video object
 % Putting the object into manual trigger mode and then
 % starting the object will make GETSNAPSHOT return faster
 % since the connection to the camera will already have
 % been established.
-handles.video = videoinput('macvideo', 1);
+OS = computer();
+switch OS
+    case 'PCWIN64' % windows
+        %vid = videoinput('winvideo', 1, 'YUY2_320x240');
+        handles.video = videoinput('winvideo', 1);
+    case 'MACI64'  % mac    
+        handles.video = videoinput('macvideo',1); % add resolution! (need to call "imaqtool" on mac)
+    otherwise      % sorry linux   
+        disp('error - operating system')
+end
 set(handles.video,'TimerPeriod', 0.05, ...
 'ReturnedColorspace', 'rgb', ...
 'TimerFcn',['if(~isempty(gco)),'...
@@ -124,6 +140,10 @@ frame = get(get(handles.cameraAxes,'children'),'cdata'); % The current displayed
 save('testframe.mat', 'frame');
 disp('Frame saved to file ''testframe.mat''');
 
+%numImages = length(faces);
+%faces{numImages+1} = frame;
+%save('faces.mat','faces');
+%disp('Your face was saved to the database.');
 
 % --- Executes on button press in startAcquisition.
 function startAcquisition_Callback(hObject, eventdata, handles)
