@@ -55,12 +55,12 @@ function myCameraGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for mycameragui
 handles.output = hObject;
 
-%global faces;
-%if exist('faces.mat','file')
-%    load('faces.mat')
-%else
-%    faces = cell(0);
-%end
+global faces;
+if exist('faces.mat','file')
+    load('faces.mat')
+else
+    faces = cell(0);
+end
 
 % Create video object
 % Putting the object into manual trigger mode and then
@@ -140,10 +140,11 @@ frame = get(get(handles.cameraAxes,'children'),'cdata'); % The current displayed
 save('testframe.mat', 'frame');
 disp('Frame saved to file ''testframe.mat''');
 
-%numImages = length(faces);
-%faces{numImages+1} = frame;
-%save('faces.mat','faces');
-%disp('Your face was saved to the database.');
+global faces;
+numImages = length(faces);
+faces{numImages+1} = frame;
+save('faces.mat','faces');
+disp('Your face was saved to the database.');
 
 % --- Executes on button press in startAcquisition.
 function startAcquisition_Callback(hObject, eventdata, handles)
