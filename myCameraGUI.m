@@ -22,7 +22,7 @@ function varargout = myCameraGUI(varargin)
 
 % Edit the above text to modify the response to help mycameragui
 
-% Last Modified by GUIDE v2.5 01-Dec-2013 21:42:07
+% Last Modified by GUIDE v2.5 03-Dec-2013 23:54:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -139,30 +139,13 @@ faces{numImages+1} = frame;
 save('faces.mat','faces');
 disp('Your face was saved to the database.');
 
-% --- Executes on button press in startAcquisition.
-function startAcquisition_Callback(hObject, eventdata, handles)
-% hObject    handle to startAcquisition (see GCBO)
+% --- Executes on button press in detectUser.
+function detectUser_Callback(hObject, eventdata, handles)
+% hObject    handle to detectUser (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+disp('detecting user');
 
-% Start/Stop acquisition
-if strcmp(get(handles.startAcquisition,'String'),'Start Acquisition')
-    % Camera is not acquiring. Change button string and start acquisition.
-    set(handles.startAcquisition,'String','Stop Acquisition');
-    trigger(handles.video);
-else
-    % Camera is acquiring. Stop acquisition, save video data,
-    % and change button string.
-    stop(handles.video);
-    disp('Saving captured video...');
-    
-    videodata = getdata(handles.video);
-    save('testvideo.mat', 'videodata');
-    disp('Video saved to file ''testvideo.mat''');
-    
-    start(handles.video); % Restart the camera
-    set(handles.startAcquisition,'String','Start Acquisition');
-end
 
 % --- Executes when user attempts to close myCameraGUI.
 function myCameraGUI_CloseRequestFcn(hObject, eventdata, handles)
@@ -188,12 +171,12 @@ global userObj;
 userObj = EigenFace(name);
 strng = sprintf('Please allign your face with the displayed circle and say cheese, %s!',name{1});
 msgbox(strng);
-set(handles.captureFace,'Visible','on');
+set(handles.takePhoto,'Visible','on');
 startCamera(handles);
 
-% --- Executes on button press in captureFace.
-function captureFace_Callback(hObject, eventdata, handles)
-% hObject    handle to captureFace (see GCBO)
+% --- Executes on button press in takePhoto.
+function takePhoto_Callback(hObject, eventdata, handles)
+% hObject    handle to takePhoto (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %frame = get(get(handles.cameraAxes,'children'),'cdata'); % The current displayed frame
@@ -208,7 +191,7 @@ numUsers = length(faces);
 faces{numUsers+1} = userObj;
 save('faces.mat','faces');
 set(handles.statusText,'String','Successfully added to the database');
-set(handles.captureFace,'Visible','off');
+set(handles.takePhoto,'Visible','off');
 
 function startCamera(handles)
 start(handles.video);
