@@ -80,17 +80,24 @@ switch OS
     otherwise      % sorry linux   
         disp('error - operating system')
 end
-set(handles.video,'TimerPeriod', 0.05, ...
+
+global xRes;
+global yRes;
+Res = handles.video.VideoResolution;
+xRes = Res(1);
+yRes = Res(2);
+
+
+set(handles.video,'TimerPeriod', 0.1, ...
 'ReturnedColorspace', 'grayscale', ...
 'TimerFcn',['if(~isempty(gco)),'...
 'handles=guidata(gcf);'... % Update handles
-'imshow(fliplr(getsnapshot(handles.video)));'... % Get picture using GETSNAPSHOT and put it into axes using IMAGE
-'Res = handles.video.VideoResolution;'...
-'xRes = Res(1);'...
-'yRes = Res(2);'...
+'hImage = imshow(fliplr(getsnapshot(handles.video)));'... % Get picture using GETSNAPSHOT and put it into axes using IMAGE'hold on;'...
+'set(handles.cameraAxes,''ytick'',[],''xtick'',[]),'... % Remove tickmarks and labels that are inserted when using IMAGE
+'global xRes;'...
+'global yRes;'...
 'hold on;'...
 'plot(handles.cameraAxes,xRes/2,yRes/2,''ro'',''MarkerSize'',yRes/4);'...
-'set(handles.cameraAxes,''ytick'',[],''xtick'',[]),'... % Remove tickmarks and labels that are inserted when using IMAGE
 'else '...
 'delete(imaqfind);'... % Clean up - delete any image acquisition objects
 'end']);
@@ -179,7 +186,7 @@ if isempty(name)
 end
 global userObj;
 userObj = EigenFace(name);
-strng = sprintf('Say cheese %s!',name{1});
+strng = sprintf('Please allign your face with the displayed circle and say cheese, %s!',name{1});
 msgbox(strng);
 set(handles.captureFace,'Visible','on');
 startCamera(handles);
@@ -189,7 +196,8 @@ function captureFace_Callback(hObject, eventdata, handles)
 % hObject    handle to captureFace (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-frame = get(get(handles.cameraAxes,'children'),'cdata'); % The current displayed frame
+%frame = get(get(handles.cameraAxes,'children'),'cdata'); % The current displayed frame
+frame = getsnapshot(handles.video);
 stopCamera(handles);
 im = imresize(frame,[480 640]);
 
