@@ -22,7 +22,7 @@ function varargout = myCameraGUI(varargin)
 
 % Edit the above text to modify the response to help mycameragui
 
-% Last Modified by GUIDE v2.5 04-Dec-2013 21:13:32
+% Last Modified by GUIDE v2.5 04-Dec-2013 22:36:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -61,6 +61,7 @@ if exist('faces.mat','file')
     load('faces.mat')
 else
     faces = cell(0);
+    save('faces.mat','faces');      % save database
 end
 
 % Create video object
@@ -93,7 +94,7 @@ set(handles.video,'TimerPeriod', 0.1, ...
 'ReturnedColorspace', 'grayscale', ...
 'TimerFcn',['if(~isempty(gco)),'...
 'handles=guidata(gcf);'... % Update handles
-'hImage = imshow(fliplr(getsnapshot(handles.video)));'... % Get picture using GETSNAPSHOT and put it into axes using IMAGE'hold on;'...
+'imshow(fliplr(getsnapshot(handles.video)));'... % Get picture using GETSNAPSHOT and put it into axes using IMAGE'hold on;'...
 'set(handles.cameraAxes,''ytick'',[],''xtick'',[]),'... % Remove tickmarks and labels that are inserted when using IMAGE
 'global xRes;'...
 'global yRes;'...
@@ -126,6 +127,9 @@ varargout{1} = handles.output;
 
 % --- Executes on button press in signInUser.
 function signInUser_Callback(hObject, eventdata, handles)
+set(handles.newUser,'Enable','Off');
+set(handles.detectUser,'Enable','Off');
+
 name = inputdlg('Enter your name to sign in:'); % get name to search database
 name = lower(name); % only use lowercase names
 
@@ -150,6 +154,9 @@ for userNum = 1:length(faces) % check each database entry for name
        return
    end
 end
+
+global userObj;
+userObj = faces{userNum};
 set(handles.startStopCamera,'Enable','On');
 
 % --- Executes on button press in detectUser.
@@ -200,11 +207,13 @@ if isempty(userObj.Photos)
     set(handles.takePhoto,'Enable','off');
     set(handles.statusText,'String','Successfully added to the database');
     numUsers = length(faces);    % find number of users
-    faces{numUsers+1} = userObj; % add new user to database
+    userObj.UserId = numUsers + 1;
+    faces{numUsers + 1} = userObj; % add new user to database
 end
 
 im = imresize(frame,[480 640]); % resize image
-userObj = userObj.addPhoto(im); % add photo to database
+disp(userObj.UserId)
+faces{userObj.UserId}.addPhoto(im);
 save('faces.mat','faces');      % save database
 
 function startCamera(handles)

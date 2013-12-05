@@ -1,5 +1,6 @@
 classdef EigenFace
     properties
+        UserId
         Eigenvector
         Photos
         Name
@@ -19,5 +20,14 @@ classdef EigenFace
         function EF = setEigenvector(EF,ev)
             EF.Eigenvector = ev;
         end
+        
+        function obj = set.UserId(obj,ID)
+            obj.UserId = ID;
+        end
+        
+        function id = get.UserId(obj)
+            id = obj.UserId;
+        end
+       
     end
 end
