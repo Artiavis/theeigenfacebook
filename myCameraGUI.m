@@ -22,7 +22,7 @@ function varargout = myCameraGUI(varargin)
 
 % Edit the above text to modify the response to help mycameragui
 
-% Last Modified by GUIDE v2.5 03-Dec-2013 23:54:40
+% Last Modified by GUIDE v2.5 04-Dec-2013 21:13:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -53,6 +53,7 @@ function myCameraGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to mycameragui (see VARARGIN)
 
 % Choose default command line output for mycameragui
+clc
 handles.output = hObject;
 
 global faces;
@@ -123,36 +124,47 @@ handles.output = hObject;
 varargout{1} = handles.output;
 
 
-% --- Executes on button press in captureImage.
-function captureImage_Callback(hObject, eventdata, handles)
-% hObject    handle to captureImage (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% frame = getsnapshot(handles.video);
-frame = get(get(handles.cameraAxes,'children'),'cdata'); % The current displayed frame
-save('testframe.mat', 'frame');
-disp('Frame saved to file ''testframe.mat''');
+% --- Executes on button press in signInUser.
+function signInUser_Callback(hObject, eventdata, handles)
+name = inputdlg('Enter your name to sign in:'); % get name to search database
+name = lower(name); % only use lowercase names
 
-global faces;
-numImages = length(faces);
-faces{numImages+1} = frame;
-save('faces.mat','faces');
-disp('Your face was saved to the database.');
+if isempty(name) % if 'cancel'
+    return
+end
+
+while strcmp(name,'')
+   name = inputdlg('Enter your name to sign in:'); % get name to search database
+   name = lower(name); % only use lowercase names
+end
+
+load faces.mat; % load database
+for userNum = 1:length(faces) % check each database entry for name
+   if strcmp(faces{userNum}.Name, name)
+       msgbox('Ok you''re signed in!');
+       break;
+   end
+   
+   if userNum == length(faces)
+       msgbox('You''re not in the database!');
+       return
+   end
+end
+set(handles.startStopCamera,'Enable','On');
 
 % --- Executes on button press in detectUser.
 function detectUser_Callback(hObject, eventdata, handles)
-% hObject    handle to detectUser (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-disp('detecting user');
+set(handles.newUser,'Enable','off');
+set(handles.signInUser,'Enable','off');
+set(handles.recognizeFace,'Enable','on');
+strng = sprintf('Click [???] when ready');
+msgbox(strng);
+set(handles.takePhoto,'Visible','on');
+startCamera(handles);
 
 
 % --- Executes when user attempts to close myCameraGUI.
 function myCameraGUI_CloseRequestFcn(hObject, eventdata, handles)
-% hObject    handle to myCameraGUI (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 % Hint: delete(hObject) closes the figure
 delete(hObject);
 delete(imaqfind);
@@ -160,41 +172,74 @@ delete(imaqfind);
 
 % --- Executes on button press in newUser.
 function newUser_Callback(hObject, eventdata, handles)
-% hObject    handle to newUser (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-name = inputdlg('Enter your name');
+name = inputdlg('Enter your name:');
+name = lower(name); % only use lowercase names
 if isempty(name)
     return
 end
+set(handles.takePhoto,'Enable','on');
+
+% initialize EigenFace object for user
 global userObj;
 userObj = EigenFace(name);
-strng = sprintf('Please allign your face with the displayed circle and say cheese, %s!',name{1});
+strng = sprintf('Click [Take Photo] when ready, %s',name{1});
 msgbox(strng);
 set(handles.takePhoto,'Visible','on');
 startCamera(handles);
 
 % --- Executes on button press in takePhoto.
 function takePhoto_Callback(hObject, eventdata, handles)
-% hObject    handle to takePhoto (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-%frame = get(get(handles.cameraAxes,'children'),'cdata'); % The current displayed frame
+set(handles.takePhoto,'Enable','off');
 frame = getsnapshot(handles.video);
-stopCamera(handles);
-im = imresize(frame,[480 640]);
-
+set(handles.statusText,'String','Photo taken');
 global faces;
 global userObj;
+if isempty(userObj.Photos)
+    stopCamera(handles);
+end
+
+im = imresize(frame,[480 640]);
+
 userObj = userObj.addPhoto(im);
 numUsers = length(faces);
 faces{numUsers+1} = userObj;
 save('faces.mat','faces');
 set(handles.statusText,'String','Successfully added to the database');
-set(handles.takePhoto,'Visible','off');
 
 function startCamera(handles)
 start(handles.video);
 
 function stopCamera(handles)
 stop(handles.video)
+
+
+% --------------------------------------------------------------------
+function Menu_File_Callback(hObject, eventdata, handles)
+
+
+% --------------------------------------------------------------------
+function Menu_View_Callback(hObject, eventdata, handles)
+
+
+% --------------------------------------------------------------------
+function Menu_Exit_Callback(hObject, eventdata, handles)
+
+
+function recognizeFace_Callback(hObject, eventdata, handles)
+set(handles.recognizeFace,'Enable','off');
+stopCamera(handles);
+% do some stuff
+set(handles.newUser,'Enable','on');
+set(handles.signInUser,'Enable','on');
+
+function startStopCamera_Callback(hObject, eventdata, handles)
+if strcmp(get(handles.startStopCamera,'String'),'Start Camera')
+    % camera is off
+    set(handles.startStopCamera,'String','Stop Camera');
+    start(handles.video);
+    set(handles.takePhoto,'Enable','On');
+else
+    set(handles.startStopCamera,'String','Start Camera');
+    stop(handles.video);
+    set(handles.takePhoto,'Enable','Off');
+end
