@@ -189,22 +189,23 @@ startCamera(handles);
 
 % --- Executes on button press in takePhoto.
 function takePhoto_Callback(hObject, eventdata, handles)
-set(handles.takePhoto,'Enable','off');
 frame = getsnapshot(handles.video);
 set(handles.statusText,'String','Photo taken');
 global faces;
 global userObj;
+
+% only run for a new user
 if isempty(userObj.Photos)
     stopCamera(handles);
+    set(handles.takePhoto,'Enable','off');
+    set(handles.statusText,'String','Successfully added to the database');
+    numUsers = length(faces);    % find number of users
+    faces{numUsers+1} = userObj; % add new user to database
 end
 
-im = imresize(frame,[480 640]);
-
-userObj = userObj.addPhoto(im);
-numUsers = length(faces);
-faces{numUsers+1} = userObj;
-save('faces.mat','faces');
-set(handles.statusText,'String','Successfully added to the database');
+im = imresize(frame,[480 640]); % resize image
+userObj = userObj.addPhoto(im); % add photo to database
+save('faces.mat','faces');      % save database
 
 function startCamera(handles)
 start(handles.video);
