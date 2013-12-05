@@ -127,9 +127,6 @@ varargout{1} = handles.output;
 
 % --- Executes on button press in signInUser.
 function signInUser_Callback(hObject, eventdata, handles)
-set(handles.newUser,'Enable','Off');
-set(handles.detectUser,'Enable','Off');
-
 name = inputdlg('Enter your name to sign in:'); % get name to search database
 name = lower(name); % only use lowercase names
 
@@ -154,6 +151,9 @@ for userNum = 1:length(faces) % check each database entry for name
        return
    end
 end
+
+set(handles.newUser,'Enable','Off');
+set(handles.detectUser,'Enable','Off');
 
 global userObj;
 userObj = faces{userNum};
@@ -184,6 +184,15 @@ name = lower(name); % only use lowercase names
 if isempty(name)
     return
 end
+
+load faces.mat; % load database
+for userNum = 1:length(faces) % check each database entry for name
+   if strcmp(faces{userNum}.Name, name)
+       msgbox('Username already exists');
+       return;
+   end
+end
+
 set(handles.takePhoto,'Enable','on');
 
 % initialize EigenFace object for user
@@ -213,7 +222,7 @@ end
 
 im = imresize(frame,[480 640]); % resize image
 disp(userObj.UserId)
-faces{userObj.UserId}.addPhoto(im);
+faces{userObj.UserId} = faces{userObj.UserId}.addPhoto(im);
 save('faces.mat','faces');      % save database
 
 function startCamera(handles)

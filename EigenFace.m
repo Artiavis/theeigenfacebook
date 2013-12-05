@@ -12,13 +12,13 @@ classdef EigenFace
            EF.Name = name;
         end
         
-        function EF = addPhoto(EF,im)
-            len = length(EF.Photos);
-            EF.Photos{len+1} = im;
+        function obj = addPhoto(obj,im)
+            len = length(obj.Photos);
+            obj.Photos{len+1} = im;
         end
         
-        function EF = setEigenvector(EF,ev)
-            EF.Eigenvector = ev;
+        function obj = set.Eigenvector(obj,ev)
+            obj.Eigenvector = ev;
         end
         
         function obj = set.UserId(obj,ID)
