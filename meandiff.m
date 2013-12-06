@@ -5,11 +5,12 @@ function [ eMeanDiffUnrolled ] = meandiff( pictures )
 
 %   Example?
 
-    % Unwrap images into columns of a matrix
-    imgUnroll = zeros(numel(pictures{1}), length(pictures));
-    for index=1:length(pictures)
-       imgUnroll(:,index) = pictures{1}(:); 
-    end
+% Ignore this, use cellfun instead
+%     % Unwrap images into columns of a matrix
+%     imgUnroll = zeros(numel(pictures{1}), length(pictures));
+%     for index=1:length(pictures)
+%        imgUnroll(:,index) = pictures{1}(:); 
+%     end
 
     % Compute and subtract the mean of those images
     eMeanDiffUnrolled = imgUnroll - repmat(mean(imgUnroll, 2), [1 length(pictures)]);

@@ -223,6 +223,12 @@ end
 im = imresize(frame,[480 640]); % resize image
 disp(userObj.UserId)
 faces{userObj.UserId} = faces{userObj.UserId}.addPhoto(im);
+
+% Before saving the database, remember to add in the latest version of
+% the mean-difference matrix M, and its associated eignefaces U.
+% pictureroll = cellfun(@(x) x.Photos(:), faces, 'uniformoutput', false);
+% [M, U] = eigenmyfaces(picturesroll);
+
 save('faces.mat','faces');      % save database
 
 function startCamera(handles)
@@ -248,6 +254,21 @@ function recognizeFace_Callback(hObject, eventdata, handles)
 set(handles.recognizeFace,'Enable','off');
 stopCamera(handles);
 % do some stuff
+
+% Store all of the eigenfaces U in the database somewhere, in order of the
+% EigenFace cell object array. Also store M, the mean-difference matrix for 
+% the images. Finally, pass in the desired image K.
+% 
+% [val, index] = findmyfaces(M, K, U);
+% threshold = 1000000000000; % not sure what threshold should be
+% if (val > threshold)
+%    global faces
+%    msgbox(strcat('Ok you''re signed in, ', faces{index}.Name ,'!'));
+% else
+%    msgbox('Sorry, couldn't recognize you! Are you new?');
+% end
+
+
 set(handles.newUser,'Enable','on');
 set(handles.signInUser,'Enable','on');
 
