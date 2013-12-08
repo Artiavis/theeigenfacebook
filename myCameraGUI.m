@@ -284,7 +284,7 @@ threshold = 1000000000000; % not sure what threshold should be
 if (val > 0)
    for a=1:length(faces)
        if (index <= length(faces{a}.Photos))
-           msgbox(strcat('Ok you''re signed in, ', faces{index}.Name ,'!'));
+           msgbox(strcat('Ok you''re signed in, ', faces{a}.Name ,'!'));
            break;
        else
            index = index - length(faces{a}.Photos);
