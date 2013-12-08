@@ -232,11 +232,6 @@ im = imresize(frame,[480 640]); % resize image
 disp(userObj.UserId)
 faces{userObj.UserId} = faces{userObj.UserId}.addPhoto(im);
 
-% Before saving the database, remember to add in the latest version of
-% the mean-difference matrix M, and its associated eignefaces U.
-% pictureroll = cellfun(@(x) x.Photos(:), faces, 'uniformoutput', false);
-% [M, U] = eigenmyfaces(picturesroll);
-
 save('faces.mat','faces');      % save database
 
 function startCamera(handles)
@@ -260,21 +255,45 @@ function Menu_Exit_Callback(hObject, eventdata, handles)
 
 function recognizeFace_Callback(hObject, eventdata, handles)
 set(handles.recognizeFace,'Enable','off');
+frame = getsnapshot(handles.video);
+K = imresize(frame, [480 640]);
 stopCamera(handles);
-% do some stuff
+
+% Before saving the database, remember to add in the latest version of
+% the mean-difference matrix M, and its associated eignefaces U.
+global faces;
+pictureroll = {};
+for a=1:length(faces)
+   for b=1:length(faces{a}.Photos)
+      if (a == 1 && b == 1) 
+         pictureroll{1} = faces{a}.Photos(b);
+      else
+         pictureroll{length(pictureroll)+1} = faces{a}.Photos(b);  
+      end
+   end
+end
+% pictureroll = cellfun(@(x) x.Photos(:), faces, 'uniformoutput', false);
+[M, U] = eigenmyfaces(pictureroll);
 
 % Store all of the eigenfaces U in the database somewhere, in order of the
 % EigenFace cell object array. Also store M, the mean-difference matrix for 
 % the images. Finally, pass in the desired image K.
 % 
-% [val, index] = findmyfaces(M, K, U);
-% threshold = 1000000000000; % not sure what threshold should be
-% if (val > threshold)
-%    global faces
-%    msgbox(strcat('Ok you''re signed in, ', faces{index}.Name ,'!'));
-% else
-%    msgbox('Sorry, couldn't recognize you! Are you new?');
-% end
+[val, index] = findmyfaces(M, K, U);
+threshold = 1000000000000; % not sure what threshold should be
+if (val > 0)
+   for a=1:length(faces)
+       if (index <= length(faces{a}.Photos))
+           msgbox(strcat('Ok you''re signed in, ', faces{index}.Name ,'!'));
+           break;
+       else
+           index = index - length(faces{a}.Photos);
+       end
+   end
+   
+else
+   msgbox('Sorry, couldn''t recognize you! Are you new?');
+end
 
 
 set(handles.newUser,'Enable','on');

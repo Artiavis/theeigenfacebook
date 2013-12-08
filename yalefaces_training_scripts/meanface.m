@@ -1,6 +1,6 @@
 function avg = meanface(F)
 
-fields = fieldnames(F);
+% fields = fieldnames(F);
 
 Sum = zeros(size(F(1).(fields{1})));
 count = 0;
