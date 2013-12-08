@@ -1,2 +1,3 @@
 # ignore database files, they shouldn't hit the repo
 faces.mat
+*.asv

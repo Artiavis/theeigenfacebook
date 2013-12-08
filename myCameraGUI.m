@@ -22,7 +22,7 @@ function varargout = myCameraGUI(varargin)
 
 % Edit the above text to modify the response to help mycameragui
 
-% Last Modified by GUIDE v2.5 04-Dec-2013 22:36:17
+% Last Modified by GUIDE v2.5 07-Dec-2013 20:24:53
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -152,8 +152,10 @@ for userNum = 1:length(faces) % check each database entry for name
    end
 end
 
+set(handles.signInUser,'Enable','off');
 set(handles.newUser,'Enable','Off');
 set(handles.detectUser,'Enable','Off');
+set(handles.signOutUser,'Visible','On');
 
 global userObj;
 userObj = faces{userNum};
@@ -193,6 +195,9 @@ for userNum = 1:length(faces) % check each database entry for name
    end
 end
 
+set(handles.newUser,'Enable','off');
+set(handles.detectUser,'Enable','off');
+set(handles.signInUser,'Enable','off');
 set(handles.takePhoto,'Enable','on');
 
 % initialize EigenFace object for user
@@ -218,6 +223,9 @@ if isempty(userObj.Photos)
     numUsers = length(faces);    % find number of users
     userObj.UserId = numUsers + 1;
     faces{numUsers + 1} = userObj; % add new user to database
+    set(handles.detectUser,'Enable','on');
+    set(handles.signInUser,'Enable','on');
+    set(handles.newUser,'Enable','on');
 end
 
 im = imresize(frame,[480 640]); % resize image
@@ -283,3 +291,16 @@ else
     stop(handles.video);
     set(handles.takePhoto,'Enable','Off');
 end
+
+
+% --- Executes on button press in signOutUser.
+function signOutUser_Callback(hObject, eventdata, handles)
+% hObject    handle to signOutUser (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(handles.newUser,'Enable','on');
+set(handles.detectUser,'Enable','on');
+set(handles.signInUser,'Enable','on');
+set(handles.takePhoto,'Enable','off');
+set(handles.startStopCamera,'Enable','off');
+set(handles.signOutUser,'Visible','off');
